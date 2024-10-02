@@ -6,6 +6,7 @@ import (
 	"github.com/froggy-12/purpurbase/api/middlewares"
 	"github.com/froggy-12/purpurbase/config"
 	"github.com/froggy-12/purpurbase/routes"
+	"github.com/froggy-12/purpurbase/services/mediaserver"
 	"github.com/froggy-12/purpurbase/types"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -71,6 +72,15 @@ func (s *Server) StartServer() error {
 
 	freeRouter := app.Group("/api", middlewares.CorsMiddleWare)
 	routes.FreeRoutes(freeRouter)
+
+	if config.Configs.Features.FileUploads {
+		routes.FileUploadingRoutes(freeRouter)
+	}
+
+	if config.Configs.Features.MediaServer {
+		freeRouter.Get("/get_file", mediaserver.ServeFiles)
+		freeRouter.Get("/download_file", mediaserver.DownloadFile)
+	}
 
 	if config.Configs.AuthenticationConfigurations.Auth {
 		if config.Configs.DatabaseConfigurations.DatabaseName == "mongodb" {

@@ -15,6 +15,21 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
+type SingleFileUploadedSuccessResponse struct {
+	FileName string `json:"fileName"`
+	Message  string `json:"message"`
+}
+
+type MultipleFileUploadedSuccessResponse struct {
+	FileNames []string `json:"fileNames"`
+	Message   string   `json:"message"`
+}
+
+type DeleteSuccessResponse struct {
+	FileName string `json:"fileName"`
+	Message  string `json:"message"`
+}
+
 type HTTPSuccessResponse struct {
 	Message string         `json:"message"`
 	Data    map[string]any `json:"data"`
