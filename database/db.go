@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"log"
 
+	"github.com/froggy-12/purpurbase/config"
+	"github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -40,8 +42,16 @@ func ConnectToRedis(connectionURI string) *redis.Client {
 	return client
 }
 
-func ConnectToSQLClient(connectionString string) *sql.DB {
-	db, err := sql.Open("mysql", connectionString)
+func ConnectToSQLClient() *sql.DB {
+	cfg := mysql.Config{
+		User:                 config.Configs.DatabaseConfigurations.SQLClientConfigurations.USER,
+		Passwd:               config.Configs.DatabaseConfigurations.SQLClientConfigurations.PASSWORD,
+		Net:                  "tcp",
+		Addr:                 config.Configs.DatabaseConfigurations.SQLClientConfigurations.Host + ":" + config.Configs.DatabaseConfigurations.SQLClientConfigurations.PORT,
+		AllowNativePasswords: true,
+		ParseTime:            true,
+	}
+	db, err := sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
 		log.Fatal("Failed to create sql client instance: " + err.Error())
 	}

@@ -1,6 +1,7 @@
 package types
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -66,4 +67,21 @@ type UserMongo struct {
 type LogInDetails struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=8"`
+}
+
+type UserSQL struct {
+	ID                string          `json:"id"`
+	UserName          string          `json:"username"`
+	FirstName         string          `json:"firstName"`
+	LastName          string          `json:"lastName"`
+	Email             string          `json:"email"`
+	Password          string          `json:"password"`
+	BirthDay          time.Time       `json:"birthDay"`
+	ProfilePicture    string          `json:"profilePicture"`
+	CreatedAt         time.Time       `json:"createdAt"`
+	UpdatedAt         time.Time       `json:"updatedAt"`
+	Verified          bool            `json:"verified"`
+	VerificationToken string          `json:"verificationToken"`
+	LastLoggedIn      time.Time       `json:"lastLoggedIn"`
+	RawData           json.RawMessage `json:"rawData"`
 }

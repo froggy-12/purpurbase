@@ -55,8 +55,13 @@ func CreateDefaultConfigurations(configs *Configurations) {
 			DebugLogging:         false,
 		},
 		DatabaseConfigurations: DatabaseConfigurations{
-			DatabaseName:            "mongodb",
-			SQLConnectionURI:        "",
+			DatabaseName: "mongodb",
+			SQLClientConfigurations: SQLClientConfigurations{
+				Host:     "localhost",
+				PORT:     "3306",
+				PASSWORD: "purpurbase",
+				USER:     "root",
+			},
 			MongoDBConnectionURI:    "",
 			PostgreSQLConnectionURI: "",
 			RedisConnectionURI:      "",
@@ -98,7 +103,7 @@ func CheckConfigurations() {
 	}
 	if Configs.DatabaseConfigurations.DatabaseName == "mongodb" && Configs.DatabaseConfigurations.MongoDBConnectionURI == "" {
 		log.Fatal("no uri provided for mongodb")
-	} else if Configs.DatabaseConfigurations.DatabaseName == "mysql" && Configs.DatabaseConfigurations.SQLConnectionURI == "" {
+	} else if Configs.DatabaseConfigurations.DatabaseName == "mysql" && Configs.DatabaseConfigurations.SQLClientConfigurations.Host == "" || Configs.DatabaseConfigurations.SQLClientConfigurations.PASSWORD == "" || Configs.DatabaseConfigurations.SQLClientConfigurations.PORT == "" || Configs.DatabaseConfigurations.SQLClientConfigurations.USER == "" {
 		log.Fatal("no uri provided for sql client")
 	} else if Configs.DatabaseConfigurations.DatabaseName == "postgresql" && Configs.DatabaseConfigurations.PostgreSQLConnectionURI == "" {
 		log.Fatal("no uri provided for postgresql")

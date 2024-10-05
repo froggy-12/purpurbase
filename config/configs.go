@@ -6,11 +6,18 @@ type ExtraConfigurations struct {
 }
 
 type DatabaseConfigurations struct {
-	DatabaseName            string `json:"databaseName"`
-	SQLConnectionURI        string `json:"SQLConnectionURI"`
-	MongoDBConnectionURI    string `json:"mongodbConnectionURI"`
-	RedisConnectionURI      string `json:"redisConnectionURI"`
-	PostgreSQLConnectionURI string `json:"postgreSQLConnectionURI"`
+	DatabaseName            string                  `json:"databaseName"`
+	SQLClientConfigurations SQLClientConfigurations `json:"SQLClientConfigurations"`
+	MongoDBConnectionURI    string                  `json:"mongodbConnectionURI"`
+	RedisConnectionURI      string                  `json:"redisConnectionURI"`
+	PostgreSQLConnectionURI string                  `json:"postgreSQLConnectionURI"`
+}
+
+type SQLClientConfigurations struct {
+	Host     string `json:"host"`
+	PORT     string `json:"port"`
+	PASSWORD string `json:"password"`
+	USER     string `json:"user"`
 }
 
 type PurpurbaseConfigurations struct {

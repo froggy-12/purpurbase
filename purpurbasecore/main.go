@@ -51,7 +51,7 @@ func (s *Purpurbase) Start() {
 		MongoClient = database.ConnectToMongoDB(config.Configs.DatabaseConfigurations.MongoDBConnectionURI)
 		utils.DebugLogger("main", "Successfully connected with mongodb client")
 	case "mysql":
-		SQLClient = database.ConnectToSQLClient(config.Configs.DatabaseConfigurations.SQLConnectionURI)
+		SQLClient = database.ConnectToSQLClient()
 		utils.DebugLogger("main", "Successfully connected with sql client")
 	case "postgresql":
 		SQLClient = database.ConnectToPostgreSQL(config.Configs.DatabaseConfigurations.PostgreSQLConnectionURI)
@@ -67,7 +67,7 @@ func (s *Purpurbase) Start() {
 	}
 
 	utils.DebugLogger("main", "initializing database settings")
-	database.Init(MongoClient)
+	database.Init(MongoClient, SQLClient)
 
 	utils.DebugLogger("main", "Starting the API Server")
 	Server := api.NewServer(MongoClient, RedisClient, SQLClient)
