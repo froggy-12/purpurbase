@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"io"
@@ -302,4 +303,119 @@ func UploadAnyFile(_ *fiber.Ctx, file *multipart.FileHeader, folder, filename st
 	}
 
 	return nil
+}
+
+func FindUserFromSQLDBUsingEmail(email string, db *sql.DB) (types.UserSQL, error) {
+	var user types.UserSQL
+	query := "SELECT ID, UserName, FirstName, LastName, Email, Password, BirthDay, ProfilePicture, CreatedAt, UpdatedAt, Verified, VerificationToken, LastLoggedIn, RawData FROM purpurbase.users WHERE Email = ?;"
+	err := db.QueryRow(query, email).Scan(
+		&user.ID,
+		&user.UserName,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.Password,
+		&user.BirthDay,
+		&user.ProfilePicture,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+		&user.Verified,
+		&user.VerificationToken,
+		&user.LastLoggedIn,
+		&user.RawData,
+	)
+
+	return user, err
+}
+
+func FindUserFromSQLDBUsingID(ID string, db *sql.DB) (types.UserSQL, error) {
+	var user types.UserSQL
+	query := "SELECT ID, UserName, FirstName, LastName, Email, Password, BirthDay, ProfilePicture, CreatedAt, UpdatedAt, Verified, VerificationToken, LastLoggedIn, RawData FROM purpurbase.users WHERE ID = ?;"
+	err := db.QueryRow(query, ID).Scan(
+		&user.ID,
+		&user.UserName,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.Password,
+		&user.BirthDay,
+		&user.ProfilePicture,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+		&user.Verified,
+		&user.VerificationToken,
+		&user.LastLoggedIn,
+		&user.RawData,
+	)
+
+	return user, err
+}
+
+func FindUserFromSQLDBUsingUsername(username string, db *sql.DB) (types.UserSQL, error) {
+	var user types.UserSQL
+	query := "SELECT ID, UserName, FirstName, LastName, Email, Password, BirthDay, ProfilePicture, CreatedAt, UpdatedAt, Verified, VerificationToken, LastLoggedIn, RawData FROM purpurbase.users WHERE UserName = ?;"
+	err := db.QueryRow(query, username).Scan(
+		&user.ID,
+		&user.UserName,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.Password,
+		&user.BirthDay,
+		&user.ProfilePicture,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+		&user.Verified,
+		&user.VerificationToken,
+		&user.LastLoggedIn,
+		&user.RawData,
+	)
+
+	return user, err
+}
+
+func LogInSQLDB(c *fiber.Ctx, db *sql.DB, validate validator.Validate, jwtExpirationTime int, jwtSecret string) error {
+	var details types.LogInDetails
+
+	if err := c.BodyParser(&details); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(types.ErrorResponse{Error: "Invalid Request body"})
+	}
+
+	if err := validate.Struct(&details); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(types.ErrorResponse{Error: err.Error()})
+	}
+
+	user, err := FindUserFromSQLDBUsingEmail(details.Email, db)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.Status(fiber.StatusBadRequest).JSON(types.ErrorResponse{Error: "User does not exist"})
+		} else {
+			return c.Status(fiber.StatusInternalServerError).JSON(types.ErrorResponse{Error: "Something went wrong: " + err.Error()})
+		}
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(details.Password))
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(types.ErrorResponse{Error: "Wrong Password"})
+	}
+
+	token, err := GenerateJWTToken(user.ID, jwtExpirationTime, jwtSecret)
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(types.ErrorResponse{Error: "Failed to generate JWT token"})
+	}
+
+	_, err = db.Exec(`UPDATE purpurbase.users SET LastLoggedIn = CURRENT_TIMESTAMP() WHERE ID = ?`, user.ID)
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(types.ErrorResponse{Error: "Something Went Wrong: " + err.Error()})
+	}
+
+	SetJwtHttpCookies(c, token, jwtExpirationTime)
+	return c.Status(fiber.StatusAccepted).JSON(types.HTTPSuccessResponse{
+		Message: "User has been logged in successfully",
+		Data:    map[string]any{"userID": user.ID},
+	})
 }

@@ -89,6 +89,12 @@ func (s *Server) StartServer() error {
 			routes.MongoAuthRoutes(authRouter, s.mongoClient)
 			routes.MongoUserRoutes(userRouter, s.mongoClient)
 		}
+
+		if config.Configs.DatabaseConfigurations.DatabaseName == "mysql" {
+			authRouter := app.Group("/api/auth")
+
+			routes.SQLDBAuth(authRouter, s.sqlClient)
+		}
 	}
 
 	return app.Listen(":" + config.Configs.PurpurbaseConfigurations.PurpurbasePort)

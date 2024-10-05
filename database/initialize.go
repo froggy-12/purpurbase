@@ -38,7 +38,7 @@ func Init(mongoClient *mongo.Client, SQLDB *sql.DB) {
 	}
 
 	if config.Configs.DatabaseConfigurations.DatabaseName == "mysql" {
-		utils.DebugLogger("db", "detected mariadb as primary database running some configurations")
+		utils.DebugLogger("db", "detected mysql binaries as primary database running some configurations")
 
 		_, err := SQLDB.Exec(`CREATE DATABASE IF NOT EXISTS purpurbase;`)
 

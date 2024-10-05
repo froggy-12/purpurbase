@@ -1,6 +1,7 @@
 package types
 
 import (
+	"database/sql"
 	"encoding/json"
 	"time"
 
@@ -70,18 +71,18 @@ type LogInDetails struct {
 }
 
 type UserSQL struct {
-	ID                string          `json:"id"`
-	UserName          string          `json:"username"`
-	FirstName         string          `json:"firstName"`
-	LastName          string          `json:"lastName"`
-	Email             string          `json:"email"`
-	Password          string          `json:"password"`
-	BirthDay          time.Time       `json:"birthDay"`
-	ProfilePicture    string          `json:"profilePicture"`
-	CreatedAt         time.Time       `json:"createdAt"`
-	UpdatedAt         time.Time       `json:"updatedAt"`
-	Verified          bool            `json:"verified"`
-	VerificationToken string          `json:"verificationToken"`
-	LastLoggedIn      time.Time       `json:"lastLoggedIn"`
-	RawData           json.RawMessage `json:"rawData"`
+	ID                string
+	UserName          string
+	FirstName         string
+	LastName          string
+	Email             string
+	Password          string
+	BirthDay          time.Time
+	ProfilePicture    string
+	CreatedAt         sql.NullTime
+	UpdatedAt         sql.NullTime
+	Verified          bool
+	VerificationToken string
+	LastLoggedIn      sql.NullTime
+	RawData           json.RawMessage
 }
